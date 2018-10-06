@@ -8,7 +8,9 @@ import logging
 import tensorflow as tf
 import pydicom
 import PIL
-import base64
+
+from tqdm import tqdm
+
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
@@ -202,13 +204,13 @@ class Annot:
         )
         return tf_example
 
-    def create_ml_set(self, frame_path, out_path, test_fraction=0.2):
+    def create_ml_set(self, frame_path, output_path, test_fraction=0.2):
         """
         """
         np.random.seed(123)
 
         self._frame_path = frame_path
-        self._out_path = out_path
+        self._out_path = output_path
 
         frame_ids = list(self._data.keys())
 
@@ -219,8 +221,8 @@ class Annot:
         print(f"train size: {len(train_frame_ids)}")
         print(f"train size: {len(list(test_frame_ids))}")
 
-        self._write_tf_records(list(test_frame_ids), out_filepath=os.path.join(out_path, 'test.tfrec'))
-        self._write_tf_records(train_frame_ids, out_filepath=os.path.join(out_path, 'train.tfrec'))
+        self._write_tf_records(list(test_frame_ids), out_filepath=os.path.join(output_path, 'test.tfrec'))
+        self._write_tf_records(train_frame_ids, out_filepath=os.path.join(output_path, 'train.tfrec'))
 
 
     def _write_tf_records(self, frame_ids, out_filepath):
@@ -228,7 +230,7 @@ class Annot:
         """
         writer = tf.python_io.TFRecordWriter(out_filepath)
 
-        for frame_id in frame_ids:
+        for frame_id in tqdm(frame_ids):
             frame_annots = self._data[frame_id]
 
             frame_filepath = os.path.join(self._frame_path, frame_id + '.dcm')
