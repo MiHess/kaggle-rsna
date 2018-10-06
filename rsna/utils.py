@@ -1,15 +1,14 @@
 
 import os
 import numpy as np
-
 import logging
-
-
 import tensorflow as tf
 import pydicom
 import PIL
 
 from tqdm import tqdm
+from multiprocessing import Pool
+from multiprocessing import cpu_count
 
 
 logger = logging.getLogger(__file__)
@@ -224,24 +223,27 @@ class Annot:
         self._write_tf_records(list(test_frame_ids), out_filepath=os.path.join(output_path, 'test.tfrec'))
         self._write_tf_records(train_frame_ids, out_filepath=os.path.join(output_path, 'train.tfrec'))
 
+    def _prepare_tf_example(self, frame_id):
+        """
+        """
+        frame_annots = self._data[frame_id]
+        frame_filepath = os.path.join(self._frame_path, frame_id + '.dcm')
+        image = Annot._read_dcm(frame_filepath)
+        tf_example = self._create_tf_example(frame_id=frame_id,
+                                             frame_filepath=frame_filepath,
+                                             image=image,
+                                             frame_annots=frame_annots)
+        return tf_example
 
     def _write_tf_records(self, frame_ids, out_filepath):
         """
         """
         writer = tf.python_io.TFRecordWriter(out_filepath)
 
-        for frame_id in tqdm(frame_ids):
-            frame_annots = self._data[frame_id]
+        with Pool(cpu_count()) as p:
+            tf_examples = list(tqdm(p.imap(self._prepare_tf_example, frame_ids), total=len(frame_ids)))
 
-            frame_filepath = os.path.join(self._frame_path, frame_id + '.dcm')
-
-            image = Annot._read_dcm(frame_filepath)
-
-            tf_example = self._create_tf_example(frame_id=frame_id,
-                                                 frame_filepath=frame_filepath,
-                                                 image=image,
-                                                 frame_annots=frame_annots)
-
+        for tf_example in tf_examples:
             writer.write(tf_example.SerializeToString())
 
         writer.close()
