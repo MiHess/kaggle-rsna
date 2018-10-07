@@ -19,7 +19,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)s "
 @click.command()
 @click.option("--limit", default=None)
 @click.option("--raw_data_path", default="/mirco-kaggle/rsna/")
-@click.option("--output_path", default="/home/mhess/kaggle-rsna/ml/v1/data2/")
+@click.option("--output_path", default="/home/mhess/kaggle-rsna/ml/v99/data/")
 @click.option("--test_fraction", default=0.2)
 @click.option("--label_map_filepath", default=None)
 def main(limit, raw_data_path, output_path, test_fraction, label_map_filepath):
@@ -44,10 +44,11 @@ def main(limit, raw_data_path, output_path, test_fraction, label_map_filepath):
         df_train_labels = df_train_labels.assign(label_idx=df_train_labels['Target'])
     df_train_labels['label'] = df_train_labels['label_idx'].apply(lambda x: label_map[x])
 
+    logger.info(f"Creating ML dataset ...")
     annotation_dict = utils.get_annotation_dict(df_train_labels=df_train_labels)
     annot = utils.Annot(annotation_dict)
-
     annot.create_ml_set(frame_path=train_dicom_dir, output_path=output_path, test_fraction=test_fraction)
+    logger.info(f"Done.")
 
 if __name__ == "__main__":
     main()

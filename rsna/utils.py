@@ -211,8 +211,9 @@ class Annot:
         train_frame_ids = [frame for frame in frame_ids if frame not in test_frame_ids]
 
         logger.info(f"creating test and train sets with ratio {test_fraction}")
-        print(f"train size: {len(train_frame_ids)}")
-        print(f"train size: {len(list(test_frame_ids))}")
+        logger.info(f"train size: {len(train_frame_ids)}")
+        logger.info(f"test size: {len(list(test_frame_ids))}")
+        logger.info(f"output_path: {output_path}")
 
         self._write_tf_records(list(test_frame_ids), out_filepath=os.path.join(output_path, 'test.tfrec'))
         self._write_tf_records(train_frame_ids, out_filepath=os.path.join(output_path, 'train.tfrec'))
