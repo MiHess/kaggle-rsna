@@ -154,8 +154,8 @@ class Annot:
 
 
         image_pil = PIL.Image.fromarray(image)
-        image_pil.save(f"tmp_{frame_id}.png", "PNG", quality=100)
-        fpath = os.path.join(f"tmp_{frame_id}.png")
+        image_pil.save(f"tmp.png", "PNG", quality=100)
+        fpath = os.path.join(f"tmp.png")
         with open(fpath, "rb") as f:
             image_encoded = f.read()
 
