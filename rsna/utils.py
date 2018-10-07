@@ -1,4 +1,3 @@
-
 import os
 import numpy as np
 import logging
@@ -66,7 +65,6 @@ def get_annotation_dict(df_train_labels):
     return annotation_dict
 
 
-
 class Annot:
 
     def __init__(self, data: dict):
@@ -93,7 +91,6 @@ class Annot:
     def values(self):
         return self._data.values()
 
-
     def get_min_max_bbox(self, frame_id):
         """
         """
@@ -116,7 +113,6 @@ class Annot:
             ymax=ymaxs,
             labels=labels
         )
-
 
     def get_min_size_bbox(self, frame_id):
         """
@@ -141,7 +137,6 @@ class Annot:
             labels=labels
         )
 
-
     @staticmethod
     def get_image(frame_path, frame_id):
         """
@@ -149,7 +144,6 @@ class Annot:
         image = Annot._read_dcm(os.path.join(frame_path, frame_id + '.dcm'))
 
         return image
-
 
     def _create_tf_example(self, frame_id, frame_filepath, image, frame_annots):
         """
@@ -247,7 +241,6 @@ class Annot:
             writer.write(tf_example.SerializeToString())
 
         writer.close()
-
 
     @staticmethod
     def _read_dcm(filepath):
