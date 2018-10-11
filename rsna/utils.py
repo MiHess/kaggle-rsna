@@ -47,6 +47,17 @@ def _bbox_convert_to_min_max(x, y, width, height, **kwargs):
     )
 
 
+def _bbox_convert_to_min_size(xmin, ymin, xmax, ymax, **kwargs):
+    """
+    """
+    return dict(
+        xmin=int(xmin),
+        width=int(xmax - xmin),
+        ymin=int(ymin),
+        height=int(ymax - ymin)
+    )
+
+
 def _fill_annotation_dict(row, annotation_dict):
     """
     """
@@ -154,10 +165,40 @@ class Annot:
 
 
         image_pil = PIL.Image.fromarray(image)
-        image_pil.save(f"tmp.png", "PNG", quality=100)
-        fpath = os.path.join(f"tmp.png")
+        image_pil.save(f"{frame_id}.jpg", "JPEG", quality=100)
+
+
+
+        # image_contents = tf.read_file(f"tmp.jpg")
+        # ii = tf.image.decode_image(image_contents, channels=3)
+
+        # logger.info(f"shape: {np.stack((image,)*3, -1).shape}")
+        # image_encoded = tf.image.encode_jpeg(image, format='grayscale')
+
+        # init_op = tf.initialize_all_tables()
+        # with tf.Session() as sess:
+        #     sess.run(init_op)
+        #     tmp = sess.run(ii)
+        # logger.info(f"tmp {tmp}")
+
+        # ii = tf.image.decode_jpeg(image_contents, channels=3)
+        # init_op = tf.initialize_all_tables()
+
+
+        fpath = os.path.join(f"{frame_id}.jpg")
         with open(fpath, "rb") as f:
             image_encoded = f.read()
+
+
+        # bb = str(b"\x89PNG")[0:9]
+        # bb = str(b"\xff")[0:4]
+
+
+        # if not str(image_encoded)[0:12].startswith(bb):
+        #     logger.info(f"{bb}")
+        #     logger.info(f"{str(image_encoded)[0:12]}")
+        #     logger.info(f"image: {str(image_encoded)[0:12].startswith(bb)}")
+        #     return None
 
         width, height = image.shape
 
@@ -175,7 +216,7 @@ class Annot:
             class_labels.append(frame_annot["label"])
             class_idc.append(frame_annot["label_idx"])
 
-        class_labels_encoded = [str(class_label).encode("utf8") for class_label in class_labels]
+        class_labels_encoded = [str(class_label).encode("utf-8") for class_label in class_labels]
 
         tf_example = tf.train.Example(
             features=tf.train.Features(
@@ -224,6 +265,7 @@ class Annot:
         frame_annots = self._data[frame_id]
         frame_filepath = os.path.join(self._frame_path, frame_id + '.dcm')
         image = Annot._read_dcm(frame_filepath)
+
         tf_example = self._create_tf_example(frame_id=frame_id,
                                              frame_filepath=frame_filepath,
                                              image=image,
@@ -239,7 +281,10 @@ class Annot:
             tf_examples = list(tqdm(p.imap(self._prepare_tf_example, frame_ids), total=len(frame_ids)))
 
         for tf_example in tf_examples:
-            writer.write(tf_example.SerializeToString())
+            if tf_example:
+                writer.write(tf_example.SerializeToString())
+            else:
+                logger.info(f"invalid frame.")
 
         writer.close()
 
