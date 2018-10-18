@@ -156,7 +156,7 @@ class Annot:
 
         return image
 
-    def _create_tf_example(self, frame_id, frame_filepath, image, frame_annots):
+    def _create_tf_example(self, frame_id, frame_filepath, frame_annots):
         """
         """
 
@@ -164,16 +164,17 @@ class Annot:
         frame_filepath_encoded = frame_filepath.encode("utf-8")
 
 
-        image_pil = PIL.Image.fromarray(image)
-        image_pil.save(f"{frame_id}.jpg", "JPEG", quality=100)
+        # image_pil = PIL.Image.fromarray(image)
+        # image_pil.save(f"{frame_id}.jpg", "JPEG", quality=100)
 
 
-        fpath = os.path.join(f"{frame_id}.jpg")
+        image = PIL.Image.open(os.path.join(frame_filepath, frame_id + ".jpg"))
+        width, height = image.shape
+
+        fpath = os.path.join(frame_filepath, frame_id + ".jpg")
         with open(fpath, "rb") as f:
             image_encoded = f.read()
 
-
-        width, height = image.shape
 
         xmins = []
         xmaxs = []
@@ -232,16 +233,27 @@ class Annot:
         self._write_tf_records(list(test_frame_ids), out_filepath=os.path.join(output_path, 'test.tfrec'))
         self._write_tf_records(train_frame_ids, out_filepath=os.path.join(output_path, 'train.tfrec'))
 
-    def _prepare_tf_example(self, frame_id):
+    # def _prepare_tf_example(self, frame_id):
+    #     """
+    #     """
+    #     frame_annots = self._data[frame_id]
+    #     frame_filepath = os.path.join(self._frame_path, frame_id + '.dcm')
+    #     image = Annot._read_dcm(frame_filepath)
+    #
+    #     tf_example = self._create_tf_example(frame_id=frame_id,
+    #                                          frame_filepath=frame_filepath,
+    #                                          image=image,
+    #                                          frame_annots=frame_annots)
+    #     return tf_example
+
+    def _prepare_tf_example_from_jpg(self, frame_id):
         """
         """
         frame_annots = self._data[frame_id]
-        frame_filepath = os.path.join(self._frame_path, frame_id + '.dcm')
-        image = Annot._read_dcm(frame_filepath)
 
+        frame_filepath = os.path.join(self._frame_path)
         tf_example = self._create_tf_example(frame_id=frame_id,
                                              frame_filepath=frame_filepath,
-                                             image=image,
                                              frame_annots=frame_annots)
         return tf_example
 
@@ -250,8 +262,10 @@ class Annot:
         """
         writer = tf.python_io.TFRecordWriter(out_filepath)
 
+        logger.info(f"{frame_ids}")
+
         with Pool(cpu_count()) as p:
-            tf_examples = list(tqdm(p.imap(self._prepare_tf_example, frame_ids), total=len(frame_ids)))
+            tf_examples = list(tqdm(p.imap(self._prepare_tf_example_from_jpg, frame_ids), total=len(frame_ids)))
 
         for tf_example in tf_examples:
             if tf_example:
