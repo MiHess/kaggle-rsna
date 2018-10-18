@@ -168,37 +168,10 @@ class Annot:
         image_pil.save(f"{frame_id}.jpg", "JPEG", quality=100)
 
 
-
-        # image_contents = tf.read_file(f"tmp.jpg")
-        # ii = tf.image.decode_image(image_contents, channels=3)
-
-        # logger.info(f"shape: {np.stack((image,)*3, -1).shape}")
-        # image_encoded = tf.image.encode_jpeg(image, format='grayscale')
-
-        # init_op = tf.initialize_all_tables()
-        # with tf.Session() as sess:
-        #     sess.run(init_op)
-        #     tmp = sess.run(ii)
-        # logger.info(f"tmp {tmp}")
-
-        # ii = tf.image.decode_jpeg(image_contents, channels=3)
-        # init_op = tf.initialize_all_tables()
-
-
         fpath = os.path.join(f"{frame_id}.jpg")
         with open(fpath, "rb") as f:
             image_encoded = f.read()
 
-
-        # bb = str(b"\x89PNG")[0:9]
-        # bb = str(b"\xff")[0:4]
-
-
-        # if not str(image_encoded)[0:12].startswith(bb):
-        #     logger.info(f"{bb}")
-        #     logger.info(f"{str(image_encoded)[0:12]}")
-        #     logger.info(f"image: {str(image_encoded)[0:12].startswith(bb)}")
-        #     return None
 
         width, height = image.shape
 
