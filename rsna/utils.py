@@ -78,8 +78,9 @@ def get_annotation_dict(df_train_labels):
 
 class Annot:
 
-    def __init__(self, data: dict):
+    def __init__(self, data: dict, frame_path=None):
         self._data = data.copy()
+        self._frame_path = frame_path
 
     def __len__(self):
         return len(self._data)
@@ -156,17 +157,17 @@ class Annot:
 
         return image
 
-    def _create_tf_example(self, frame_id, frame_filepath, frame_annots):
+    def _create_tf_example(self, frame_id, frame_path, frame_annots):
         """
         """
-        frame_id_encoded = frame_id.encode("utf-8")
+        frame_filepath = os.path.join(frame_path, frame_id + ".jpg")
         frame_filepath_encoded = frame_filepath.encode("utf-8")
+        frame_id_encoded = frame_id.encode("utf-8")
 
-        image = PIL.Image.open(os.path.join(frame_filepath, frame_id + ".jpg"))
+        image = PIL.Image.open(frame_filepath)
         width, height = image.size
 
-        fpath = os.path.join(frame_filepath, frame_id + ".jpg")
-        with open(fpath, "rb") as f:
+        with open(frame_filepath, "rb") as f:
             image_encoded = f.read()
 
         xmins = []
@@ -203,6 +204,35 @@ class Annot:
                 }
             )
         )
+
+        return tf_example
+
+    def _create_tf_example_no_annots(self, frame_id):
+        """
+        """
+        frame_filepath = os.path.join(self._frame_path, frame_id + ".jpg")
+        frame_filepath_encoded = frame_filepath.encode("utf-8")
+        frame_id_encoded = frame_id.encode("utf-8")
+
+        image = PIL.Image.open(frame_filepath)
+        width, height = image.size
+
+        with open(frame_filepath, "rb") as f:
+            image_encoded = f.read()
+
+        tf_example = tf.train.Example(
+            features=tf.train.Features(
+                feature={
+                    "image/height": int64_feature(height),
+                    "image/width": int64_feature(width),
+                    "image/filename": bytes_feature(frame_filepath_encoded),
+                    "image/source_id": bytes_feature(frame_id_encoded),
+                    "image/encoded": bytes_feature(image_encoded),
+                    "image/format": bytes_feature(TF_IMAGE_FORMAT),
+                }
+            )
+        )
+
         return tf_example
 
     def create_ml_set(self, frame_path, output_path, test_fraction=0.2):
@@ -231,9 +261,9 @@ class Annot:
         """
         frame_annots = self._data[frame_id]
 
-        frame_filepath = os.path.join(self._frame_path)
+        frame_path = os.path.join(self._frame_path)
         tf_example = self._create_tf_example(frame_id=frame_id,
-                                             frame_filepath=frame_filepath,
+                                             frame_path=frame_path,
                                              frame_annots=frame_annots)
         return tf_example
 
