@@ -169,7 +169,7 @@ class Annot:
 
 
         image = PIL.Image.open(os.path.join(frame_filepath, frame_id + ".jpg"))
-        width, height = image.shape
+        width, height = image.size
 
         fpath = os.path.join(frame_filepath, frame_id + ".jpg")
         with open(fpath, "rb") as f:
@@ -262,7 +262,6 @@ class Annot:
         """
         writer = tf.python_io.TFRecordWriter(out_filepath)
 
-        logger.info(f"{frame_ids}")
 
         with Pool(cpu_count()) as p:
             tf_examples = list(tqdm(p.imap(self._prepare_tf_example_from_jpg, frame_ids), total=len(frame_ids)))
