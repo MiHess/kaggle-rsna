@@ -20,8 +20,8 @@ logging.basicConfig(format="%(asctime)s %(levelname)s "
 @click.command()
 @click.option("--limit", default=None)
 @click.option("--only_target_images", default=False)
-@click.option("--raw_data_path", default="/home/mhess/")
-@click.option("--output_path", default="/home/mhess/kaggle-rsna/ml/v100/data/")
+@click.option("--raw_data_path", default="/home/ubuntu/")
+@click.option("--output_path", default="/home/ubuntu/kaggle-rsna/ml/v100/data/")
 @click.option("--test_fraction", default=0.2)
 @click.option("--label_map_filepath", default=None)
 def main(limit, only_target_images, raw_data_path, output_path, test_fraction, label_map_filepath):
@@ -32,7 +32,7 @@ def main(limit, only_target_images, raw_data_path, output_path, test_fraction, l
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    train_dicom_dir = os.path.join(raw_data_path, 'stage_1_train_images_jpg_dev')
+    train_dicom_dir = os.path.join(raw_data_path, 'stage_1_train_images_jpg')
     train_labels = os.path.join("/mirco-kaggle/rsna", 'stage_1_train_labels.csv')
 
     df_train_labels = pd.read_csv(train_labels)
