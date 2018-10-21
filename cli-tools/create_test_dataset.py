@@ -21,7 +21,7 @@ logging.basicConfig(format="%(asctime)s %(levelname)s "
 
 
 @click.command()
-@click.option("--frame_path", default="/home/ubuntu/stage_1_test_images_jpg/")
+@click.option("--frame_path", default="/mirco-kaggle/rsna/stage_1_test_images_jpg_eqhist/")
 @click.option("--output_path", default="/home/ubuntu/kaggle-rsna/ml/v100/data/test/")
 @click.option("--output_filename", default="unseen.tfrec")
 def main(frame_path, output_path, output_filename):

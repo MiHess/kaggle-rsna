@@ -32,7 +32,7 @@ def main(limit, only_target_images, raw_data_path, output_path, test_fraction, l
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    train_dicom_dir = os.path.join(raw_data_path, 'stage_1_train_images_jpg')
+    train_dicom_dir = os.path.join(raw_data_path, 'stage_1_train_images_jpg_eqhist')
     train_labels = os.path.join("/mirco-kaggle/rsna", 'stage_1_train_labels.csv')
 
     df_train_labels = pd.read_csv(train_labels)
